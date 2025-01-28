@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface ScheduleSlot {
   time: string;
-  status: 'Available' | 'Booked' | 'Cancelled';
+  status: "Available" | "Booked" | "Cancelled";
   type?: string;
   details?: string;
 }
@@ -29,13 +29,13 @@ const generateMockSchedule = (startDate: Date): DaySchedule[] => {
     date.setDate(date.getDate() + dayIndex);
 
     return {
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split("T")[0],
       slots: Array.from({ length: 48 }).map((_, slotIndex) => ({
-        time: `${String(Math.floor(slotIndex / 2)).padStart(2, '0')}:${
-          slotIndex % 2 === 0 ? '00' : '30'
+        time: `${String(Math.floor(slotIndex / 2)).padStart(2, "0")}:${
+          slotIndex % 2 === 0 ? "00" : "30"
         }`,
-        status: Math.random() > 0.7 ? 'Available' : 'Booked',
-        type: Math.random() > 0.7 ? 'Specialist' : 'Standard',
+        status: Math.random() > 0.7 ? "Available" : "Booked",
+        type: Math.random() > 0.7 ? "Specialist" : "Standard",
         details: `Details for slot ${slotIndex}`,
       })),
     };
@@ -45,16 +45,21 @@ const generateMockSchedule = (startDate: Date): DaySchedule[] => {
 const PatientCalendar: React.FC = () => {
   const [schedule, setSchedule] = useState<DaySchedule[]>([]);
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(new Date());
-  const [selectedSlot, setSelectedSlot] = useState<{ date: string; time: string } | null>(null);
-  const [reservationFormVisible, setReservationFormVisible] = useState<boolean>(false);
-  const [reservationDetails, setReservationDetails] = useState<ReservationDetails>({
-    duration: 0,
-    type: '',
-    patientName: '',
-    gender: '',
-    age: 0,
-    notes: '',
-  });
+  const [selectedSlot, setSelectedSlot] = useState<{
+    date: string;
+    time: string;
+  } | null>(null);
+  const [reservationFormVisible, setReservationFormVisible] =
+    useState<boolean>(false);
+  const [reservationDetails, setReservationDetails] =
+    useState<ReservationDetails>({
+      duration: 0,
+      type: "",
+      patientName: "",
+      gender: "",
+      age: 0,
+      notes: "",
+    });
 
   useEffect(() => {
     setSchedule(generateMockSchedule(currentWeekStart));
@@ -73,26 +78,26 @@ const PatientCalendar: React.FC = () => {
   };
 
   const handleSlotClick = (date: string, time: string, status: string) => {
-    if (status === 'Available') {
+    if (status === "Available") {
       setSelectedSlot({ date, time });
       setReservationFormVisible(true);
-    } else if (status === 'Booked') {
-      alert('This slot is already booked. Please select another slot.');
+    } else if (status === "Booked") {
+      alert("This slot is already booked. Please select another slot.");
     } else {
-      alert('This slot is unavailable.');
+      alert("This slot is unavailable.");
     }
   };
 
   const handleReservationSubmit = async () => {
     if (reservationDetails.duration <= 0) {
-      alert('Duration must be greater than 0.');
+      alert("Duration must be greater than 0.");
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:5000/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...reservationDetails,
           date: selectedSlot?.date,
@@ -101,7 +106,7 @@ const PatientCalendar: React.FC = () => {
       });
 
       if (response.ok) {
-        alert('Reservation successful!');
+        alert("Reservation successful!");
         setReservationFormVisible(false);
         setSchedule((prev) =>
           prev.map((day) =>
@@ -109,18 +114,20 @@ const PatientCalendar: React.FC = () => {
               ? {
                   ...day,
                   slots: day.slots.map((slot) =>
-                    slot.time === selectedSlot?.time ? { ...slot, status: 'Booked' } : slot
+                    slot.time === selectedSlot?.time
+                      ? { ...slot, status: "Booked" }
+                      : slot
                   ),
                 }
               : day
           )
         );
       } else {
-        alert('Failed to reserve the slot.');
+        alert("Failed to reserve the slot.");
       }
     } catch (error) {
-      console.error('Error during reservation:', error);
-      alert('An error occurred during reservation.');
+      console.error("Error during reservation:", error);
+      alert("An error occurred during reservation.");
     }
   };
 
@@ -149,8 +156,17 @@ const PatientCalendar: React.FC = () => {
         <div className="border p-2 font-bold text-center">Time</div>
         {schedule.map((day) => (
           <div key={day.date} className="border p-2 font-bold text-center">
-            <div>{new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' })}</div>
-            <div>{new Date(day.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
+            <div>
+              {new Date(day.date).toLocaleDateString("en-US", {
+                weekday: "long",
+              })}
+            </div>
+            <div>
+              {new Date(day.date).toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "short",
+              })}
+            </div>
           </div>
         ))}
 
@@ -161,20 +177,24 @@ const PatientCalendar: React.FC = () => {
             {schedule.map((day) => (
               <div key={`${day.date}-${hour}`} className="border p-1">
                 {day.slots
-                  .filter((slot) => slot.time.startsWith(`${hour.toString().padStart(2, '0')}:`))
+                  .filter((slot) =>
+                    slot.time.startsWith(`${hour.toString().padStart(2, "0")}:`)
+                  )
                   .map((slot, idx) => (
                     <div
                       key={idx}
                       className={`rounded p-1 text-center cursor-pointer ${
-                        slot.status === 'Booked'
-                          ? 'bg-green-200 hover:bg-red-200'
-                          : slot.status === 'Available'
-                          ? 'bg-gray-200 hover:bg-blue-200'
-                          : 'bg-red-200 opacity-50'
+                        slot.status === "Booked"
+                          ? "bg-green-200 hover:bg-red-200"
+                          : slot.status === "Available"
+                          ? "bg-gray-200 hover:bg-blue-200"
+                          : "bg-red-200 opacity-50"
                       }`}
-                      onClick={() => handleSlotClick(day.date, slot.time, slot.status)}
+                      onClick={() =>
+                        handleSlotClick(day.date, slot.time, slot.status)
+                      }
                     >
-                      {slot.type || 'Available'}
+                      {slot.type || "Available"}
                     </div>
                   ))}
               </div>
@@ -189,12 +209,17 @@ const PatientCalendar: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-md w-1/3">
             <h2 className="text-xl font-bold mb-4">Reserve a Consultation</h2>
             <div className="mb-4">
-              <label className="block font-bold mb-2">Duration (in 30-min slots):</label>
+              <label className="block font-bold mb-2">
+                Duration (in 30-min slots):
+              </label>
               <input
                 type="number"
                 value={reservationDetails.duration}
                 onChange={(e) =>
-                  setReservationDetails({ ...reservationDetails, duration: parseInt(e.target.value, 10) })
+                  setReservationDetails({
+                    ...reservationDetails,
+                    duration: parseInt(e.target.value, 10),
+                  })
                 }
                 className="border p-2 rounded w-full"
               />
@@ -203,7 +228,12 @@ const PatientCalendar: React.FC = () => {
               <label className="block font-bold mb-2">Consultation Type:</label>
               <select
                 value={reservationDetails.type}
-                onChange={(e) => setReservationDetails({ ...reservationDetails, type: e.target.value })}
+                onChange={(e) =>
+                  setReservationDetails({
+                    ...reservationDetails,
+                    type: e.target.value,
+                  })
+                }
                 className="border p-2 rounded w-full"
               >
                 <option value="">Select type</option>
@@ -218,7 +248,12 @@ const PatientCalendar: React.FC = () => {
               <input
                 type="text"
                 value={reservationDetails.patientName}
-                onChange={(e) => setReservationDetails({ ...reservationDetails, patientName: e.target.value })}
+                onChange={(e) =>
+                  setReservationDetails({
+                    ...reservationDetails,
+                    patientName: e.target.value,
+                  })
+                }
                 className="border p-2 rounded w-full"
               />
             </div>

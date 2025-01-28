@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface Absence {
   date: string;
@@ -6,17 +6,19 @@ interface Absence {
 
 const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
   const [absences, setAbsences] = useState<Absence[]>([]);
-  const [newAbsence, setNewAbsence] = useState<string>('');
+  const [newAbsence, setNewAbsence] = useState<string>("");
 
   useEffect(() => {
     // Pobranie listy absencji z backendu
     const fetchAbsences = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/absences/${doctorId}`);
+        const response = await fetch(
+          `http://localhost:5000/api/absences/${doctorId}`
+        );
         const data = await response.json();
         setAbsences(data);
       } catch (error) {
-        console.error('Error fetching absences:', error);
+        console.error("Error fetching absences:", error);
       }
     };
 
@@ -27,20 +29,20 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
     if (!newAbsence) return;
 
     try {
-      const response = await fetch('http://localhost:5000/api/absences', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:5000/api/absences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doctorId, date: newAbsence }),
       });
 
       if (response.ok) {
         setAbsences([...absences, { date: newAbsence }]);
-        setNewAbsence('');
+        setNewAbsence("");
       } else {
-        console.error('Failed to add absence');
+        console.error("Failed to add absence");
       }
     } catch (error) {
-      console.error('Error adding absence:', error);
+      console.error("Error adding absence:", error);
     }
   };
 

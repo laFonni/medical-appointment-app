@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Navbar from './Navbar';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
-import DoctorCalendar from './DoctorCalendar';
-import AvailabilityManager from './AvalibilityManager';
-import AbsenceManager from './AbsenceManager';
-import PatientCalendar from './PatientCalendar';
-import Basket from './Basket';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "./Navbar";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import DoctorCalendar from "./DoctorCalendar";
+import AvailabilityManager from "./AvalibilityManager";
+import AbsenceManager from "./AbsenceManager";
+import PatientCalendar from "./PatientCalendar";
+import Basket from "./Basket";
 
 interface UserData {
   name: string;
@@ -22,25 +22,33 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(`[Dashboard] Current token: ${token}, Current authMode: ${authMode}`);
+    console.log(
+      `[Dashboard] Current token: ${token}, Current authMode: ${authMode}`
+    );
     const fetchData = async () => {
       if (!token) {
-        console.log('[Dashboard] No token found. Redirecting to login.');
-        navigate('/login');
+        console.log("[Dashboard] No token found. Redirecting to login.");
+        navigate("/login");
         return;
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/auth/user/info', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:5000/api/auth/user/info",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setUserData(response.data);
-        console.log('[Dashboard] User data fetched successfully:', response.data);
+        console.log(
+          "[Dashboard] User data fetched successfully:",
+          response.data
+        );
       } catch (error) {
-        console.error('[Dashboard] Error fetching user data:', error);
-        navigate('/login');
+        console.error("[Dashboard] Error fetching user data:", error);
+        navigate("/login");
       }
     };
 
@@ -53,15 +61,15 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar userData={userData} />  
+      <Navbar userData={userData} />
       <div className="p-4">
         <h1 className="text-2xl font-bold">Welcome, {userData.name}</h1>
-        {userData.role === 'Patient' && (
+        {userData.role === "Patient" && (
           <div>
             <h2 className="text-xl font-bold mt-4 mb-2">Doctor Tools</h2>
             {/* <PatientCalendar /> */}
-            <DoctorCalendar doctorId={1}/>
-            <AvailabilityManager doctorId={1}/> 
+            <DoctorCalendar doctorId={1} />
+            <AvailabilityManager doctorId={1} />
             {/*<AbsenceManager doctorId={1} /> 
             <Basket patientId={1}/> */}
             {/* <AbsenceManager doctorId={userData.id} /> */}

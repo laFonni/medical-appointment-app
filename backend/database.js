@@ -40,6 +40,7 @@ const db = new sqlite3.Database('./medicalAppDB.sqlite', (err) => {
       days_mask TEXT NOT NULL, -- Maski dni (np. 'Mon,Tue,Thu')
       start_time TEXT NOT NULL, -- Godzina rozpoczęcia dostępności (HH:MM)
       end_time TEXT NOT NULL, -- Godzina zakończenia dostępności (HH:MM)
+      type TEXT NOT NULL CHECK(type IN ('Single', 'Cyclic')),
       FOREIGN KEY (doctor_id) REFERENCES users(id)
     )`);
 

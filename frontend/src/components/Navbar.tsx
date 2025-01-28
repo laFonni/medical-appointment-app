@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 interface NavbarProps {
   userData: {
@@ -20,7 +20,9 @@ const Navbar: React.FC<NavbarProps> = ({ userData }) => {
       <div className="flex justify-between items-center">
         {/* Lewa część - Dane użytkownika i tryb */}
         <div>
-          <span className="font-bold">{userData.name} {userData.lastName}</span>
+          <span className="font-bold">
+            {userData.name} {userData.lastName}
+          </span>
           <span className="ml-2 text-sm italic">({userData.role})</span>
           <span className="ml-4 text-sm bg-gray-700 px-2 py-1 rounded">
             Mode: {authMode}
@@ -47,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ userData }) => {
                   <button
                     onClick={() => {
                       clearToken();
-                      navigate('/login');
+                      navigate("/login");
                     }}
                   >
                     Logout

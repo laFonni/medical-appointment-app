@@ -20,7 +20,7 @@ router.post('/register', async (req, res) => {
         if (err) {
           return res.status(400).json({ error: err.message });
         }
-        res.status(201).json({ message: 'User registered successfully' }); // Dodanie odpowiedzi
+        res.status(201).json({ message: 'User registered successfully' }); 
       }
     );
   } catch (error) {
@@ -195,25 +195,25 @@ router.post('/consultations', (req, res) => {
 });
 
 router.post('/availability', async (req, res) => {
-  const { doctorId, type, startDate, endDate, daysMask, timeSlots, date } = req.body;
+  const { doctorId, startDate, endDate, daysMask, timeSlots, date, type } = req.body;
 
   try {
-    if (type === 'cyclic') {
+    if (type === 'Cyclic') {
       // Insert cyclic availability
       for (const slot of timeSlots) {
         await db.run(
-          `INSERT INTO doctor_availabilities (doctor_id, start_date, end_date, days_mask, start_time, end_time)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [doctorId, startDate, endDate, daysMask, slot.start, slot.end]
+          `INSERT INTO doctor_availabilities (doctor_id, start_date, end_date, days_mask, start_time, end_time, type)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [doctorId, startDate, endDate, daysMask, slot.start, slot.end, type]
         );
       }
-    } else if (type === 'single') {
+    } else if (type === 'Single') {
       // Insert single availability
       for (const slot of timeSlots) {
         await db.run(
-          `INSERT INTO doctor_availabilities (doctor_id, start_date, end_date, days_mask, start_time, end_time)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [doctorId, date, date, '', slot.start, slot.end]
+          `INSERT INTO doctor_availabilities (doctor_id, start_date, end_date, days_mask, start_time, end_time, type)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [doctorId, date, date, '', slot.start, slot.end, type]
         );
       }
     }
