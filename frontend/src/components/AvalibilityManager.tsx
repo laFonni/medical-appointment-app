@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface Availability {
-  type: 'cyclic' | 'single';
+  type: "Cyclic" | "Single";
   startDate?: string;
   endDate?: string;
   daysOfWeek?: string[]; // Maski dni tygodnia
@@ -10,71 +10,91 @@ interface Availability {
 }
 
 const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
-  const [availabilityType, setAvailabilityType] = useState<'cyclic' | 'single'>('cyclic');
+  const [availabilityType, setAvailabilityType] = useState<"Cyclic" | "Single">(
+    "Cyclic"
+  );
   const [cyclicAvailability, setCyclicAvailability] = useState<Availability>({
-    type: 'cyclic',
-    startDate: '',
-    endDate: '',
+    type: "Cyclic",
+    startDate: "",
+    endDate: "",
     daysOfWeek: [],
     timeSlots: [],
   });
   const [singleAvailability, setSingleAvailability] = useState<Availability>({
-    type: 'single',
-    singleDate: '',
+    type: "Single",
+    singleDate: "",
     timeSlots: [],
   });
 
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
 
-  const handleAddTimeSlot = (type: 'cyclic' | 'single') => {
-    if (type === 'cyclic') {
+  const handleAddTimeSlot = (type: "Cyclic" | "Single") => {
+    if (type === "Cyclic") {
       setCyclicAvailability({
         ...cyclicAvailability,
-        timeSlots: [...(cyclicAvailability.timeSlots || []), { start: '', end: '' }],
+        timeSlots: [
+          ...(cyclicAvailability.timeSlots || []),
+          { start: "", end: "" },
+        ],
       });
     } else {
       setSingleAvailability({
         ...singleAvailability,
-        timeSlots: [...(singleAvailability.timeSlots || []), { start: '', end: '' }],
+        timeSlots: [
+          ...(singleAvailability.timeSlots || []),
+          { start: "", end: "" },
+        ],
       });
     }
   };
 
   const handleSubmit = async () => {
     const data =
-      availabilityType === 'cyclic'
+      availabilityType === "Cyclic"
         ? {
             doctorId,
-            type: 'cyclic',
             startDate: cyclicAvailability.startDate,
             endDate: cyclicAvailability.endDate,
-            daysMask: cyclicAvailability.daysOfWeek?.join(','),
+            daysMask: cyclicAvailability.daysOfWeek?.join(","),
             timeSlots: cyclicAvailability.timeSlots,
+            type: "Cyclic",
           }
         : {
             doctorId,
-            type: 'single',
             date: singleAvailability.singleDate,
             timeSlots: singleAvailability.timeSlots,
+            type: "Single",
           };
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      console.log(JSON.stringify(data));
+      const response = await fetch(
+        "http://localhost:5000/api/auth/availability",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (response.ok) {
-        alert('Availability saved successfully!');
+        alert("Availability saved successfully!");
       } else {
         const error = await response.json();
-        console.error('Failed to save availability:', error);
-        alert('Failed to save availability.');
+        console.error("Failed to save availability:", error);
+        alert("Failed to save availability.");
       }
     } catch (error) {
-      console.error('Error saving availability:', error);
-      alert('Error occurred while saving availability.');
+      console.error("Error saving availability:", error);
+      alert("Error occurred while saving availability.");
     }
   };
 
@@ -89,8 +109,8 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
             type="radio"
             name="availabilityType"
             value="cyclic"
-            checked={availabilityType === 'cyclic'}
-            onChange={() => setAvailabilityType('cyclic')}
+            checked={availabilityType === "Cyclic"}
+            onChange={() => setAvailabilityType("Cyclic")}
           />
           Cyclic Availability
         </label>
@@ -99,15 +119,15 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
             type="radio"
             name="availabilityType"
             value="single"
-            checked={availabilityType === 'single'}
-            onChange={() => setAvailabilityType('single')}
+            checked={availabilityType === "Single"}
+            onChange={() => setAvailabilityType("Single")}
           />
           Single Availability
         </label>
       </div>
 
       {/* Cyclic Availability */}
-      {availabilityType === 'cyclic' && (
+      {availabilityType === "Cyclic" && (
         <div>
           <div className="mb-4">
             <label className="block mb-2 font-bold">Date Range</label>
@@ -115,7 +135,10 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               type="date"
               value={cyclicAvailability.startDate}
               onChange={(e) =>
-                setCyclicAvailability({ ...cyclicAvailability, startDate: e.target.value })
+                setCyclicAvailability({
+                  ...cyclicAvailability,
+                  startDate: e.target.value,
+                })
               }
               className="border p-2 rounded mr-2"
             />
@@ -123,7 +146,10 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               type="date"
               value={cyclicAvailability.endDate}
               onChange={(e) =>
-                setCyclicAvailability({ ...cyclicAvailability, endDate: e.target.value })
+                setCyclicAvailability({
+                  ...cyclicAvailability,
+                  endDate: e.target.value,
+                })
               }
               className="border p-2 rounded"
             />
@@ -183,7 +209,7 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               </div>
             ))}
             <button
-              onClick={() => handleAddTimeSlot('cyclic')}
+              onClick={() => handleAddTimeSlot("Cyclic")}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
               Add Time Slot
@@ -193,7 +219,7 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       )}
 
       {/* Single Availability */}
-      {availabilityType === 'single' && (
+      {availabilityType === "Single" && (
         <div>
           <div className="mb-4">
             <label className="block mb-2 font-bold">Date</label>
@@ -201,7 +227,10 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               type="date"
               value={singleAvailability.singleDate}
               onChange={(e) =>
-                setSingleAvailability({ ...singleAvailability, singleDate: e.target.value })
+                setSingleAvailability({
+                  ...singleAvailability,
+                  singleDate: e.target.value,
+                })
               }
               className="border p-2 rounded"
             />
@@ -234,7 +263,7 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               </div>
             ))}
             <button
-              onClick={() => handleAddTimeSlot('single')}
+              onClick={() => handleAddTimeSlot("Single")}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
               Add Time Slot
