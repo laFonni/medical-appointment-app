@@ -152,13 +152,19 @@ router.get('/doctor/consultations', (req, res) => {
 });
 
 // Endpoint to fetch doctor absences
-router.get('/doctor/absences', (req, res) => {
+router.get('/doctor/absences', async (req, res) => {
   const { doctorId, startDate, endDate } = req.query;
 
+  if (!doctorId || !startDate || !endDate) {
+    return res.status(400).json({ error: "doctorId, startDate, and endDate are required" });
+  }
+
   db.all(
-    `SELECT date FROM doctor_absences WHERE doctor_id = ? AND 
-      date BETWEEN ? AND ?`,
-    [doctorId, startDate, endDate],
+    `SELECT id, start_date, end_date, reason 
+       FROM doctor_absences 
+       WHERE doctor_id = ? 
+       AND ((start_date BETWEEN ? AND ?) OR (end_date BETWEEN ? AND ?) OR (start_date <= ? AND end_date >= ?))`,
+      [doctorId, startDate, endDate, startDate, endDate, startDate, endDate],
     (err, rows) => {
       if (err) {
         res.status(500).json({ error: 'Failed to fetch absences' });
@@ -167,7 +173,9 @@ router.get('/doctor/absences', (req, res) => {
       }
     }
   );
+
 });
+
 
 router.get('/doctor/all-absences', async (req, res) => {
   const { doctorId } = req.query;
@@ -177,7 +185,7 @@ router.get('/doctor/all-absences', async (req, res) => {
   }
 
   db.all(
-    `SELECT id, date, reason FROM doctor_absences WHERE doctor_id = ?`,
+    'SELECT id, start_date, end_date, reason FROM doctor_absences WHERE doctor_id = ?',
       [parseInt(doctorId, 10)],
     (err, rows) => {
       if (err) {
@@ -188,6 +196,7 @@ router.get('/doctor/all-absences', async (req, res) => {
     }
   );
 });
+
 
 
 // Endpoint to create a new consultation
@@ -247,24 +256,25 @@ router.post('/availability', async (req, res) => {
 });
 
 router.post('/absences', async (req, res) => {
-  const { doctorId, date, reason } = req.body;
+  const { doctorId, startDate, endDate, reason } = req.body;
 
-  if (!doctorId || !date) {
-    return res.status(400).send({ error: 'doctorId and date are required' });
+  if (!doctorId || !startDate || !endDate) {
+    return res.status(400).send({ error: "doctorId, startDate, and endDate are required" });
   }
 
   try {
     await db.run(
-      `INSERT INTO doctor_absences (doctor_id, date, reason) VALUES (?, ?, ?)`,
-      [doctorId, date, reason || null]
+      `INSERT INTO doctor_absences (doctor_id, start_date, end_date, reason) VALUES (?, ?, ?, ?)`,
+      [doctorId, startDate, endDate, reason || null]
     );
 
-    res.status(201).send({ message: 'Absence recorded successfully!' });
+    res.status(201).send({ message: "Absence recorded successfully!" });
   } catch (error) {
-    console.error('Error saving absence:', error);
-    res.status(500).send({ error: 'Error saving absence' });
+    console.error("Error saving absence:", error);
+    res.status(500).send({ error: "Error saving absence" });
   }
 });
+
 
 router.delete('/absences/:id', async (req, res) => {
   const { id } = req.params;
@@ -286,6 +296,7 @@ router.delete('/absences/:id', async (req, res) => {
     res.status(500).json({ error: "Failed to delete absence" });
   }
 });
+
 
 
 

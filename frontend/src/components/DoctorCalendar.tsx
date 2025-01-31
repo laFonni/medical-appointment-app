@@ -12,6 +12,11 @@ interface DaySchedule {
   slots: ScheduleSlot[];
 }
 
+interface Absence {
+  start_date: string;
+  end_date: string;
+}
+
 const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
   const [schedule, setSchedule] = useState<DaySchedule[]>([]);
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
@@ -29,11 +34,8 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
         const endDateString = endDate.toISOString().split("T")[0];
 
         // Fetch data from the backend using fetch
-        const [
-          availabilityResponse,
-          consultationsResponse = [],
-          absencesResponse = [],
-        ] = await Promise.all([
+        // Fetch availability, consultations, and absences concurrently
+        const [availability, consultations, absences] = await Promise.all([
           fetch(
             `http://localhost:5000/api/auth/doctor/availability?doctorId=${doctorId}&startDate=${startDate}&endDate=${endDateString}`
           ).then((res) => res.json()),
@@ -44,10 +46,6 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
             `http://localhost:5000/api/auth/doctor/absences?doctorId=${doctorId}&startDate=${startDate}&endDate=${endDateString}`
           ).then((res) => res.json()),
         ]);
-
-        const availability = availabilityResponse;
-        const consultations = consultationsResponse;
-        const absences = absencesResponse.map((absence: any) => absence.date);
 
         // Generate schedule based on API data
 
@@ -128,7 +126,11 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                           ].includes(getDayName(date)))
                   );
 
-                const isAbsent = absences.includes(formattedDate);
+                  const isAbsent = absences.some(
+                    (absence: Absence) =>
+                      absence.start_date <= formattedDate &&
+                      absence.end_date >= formattedDate
+                  );
 
                 return {
                   time,

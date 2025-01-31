@@ -45,10 +45,11 @@ const db = new sqlite3.Database('./medicalAppDB.sqlite', (err) => {
     )`);
 
     // Tabela niedostępności lekarza
-    db.run(`CREATE TABLE IF NOT EXISTS doctor_absences(
+    db.run(`CREATE TABLE IF NOT EXISTS doctor_absences (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       doctor_id INTEGER NOT NULL,
-      date TEXT NOT NULL, -- Data nieobecności (YYYY-MM-DD)
+      start_date TEXT NOT NULL, -- Data rozpoczęcia nieobecności (YYYY-MM-DD)
+      end_date TEXT NOT NULL, -- Data zakończenia nieobecności (YYYY-MM-DD)
       reason TEXT, -- Powód nieobecności
       FOREIGN KEY (doctor_id) REFERENCES users(id)
     )`);

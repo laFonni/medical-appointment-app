@@ -2,40 +2,41 @@ import React, { useState, useEffect } from "react";
 
 interface Absence {
   id: number;
-  date: string;
+  start_date: string;
+  end_date: string;
   reason?: string;
 }
 
 const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
   const [absences, setAbsences] = useState<Absence[]>([]);
-  const [newAbsence, setNewAbsence] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const [reason, setReason] = useState<string>("");
 
-  // Funkcja pobierająca listę absencji z backendu
+  // Pobieranie listy absencji z backendu
   const fetchAbsences = async () => {
     try {
       const response = await fetch(
         `http://localhost:5000/api/auth/doctor/all-absences?doctorId=${doctorId}`
       );
+
       if (!response.ok) throw new Error("Failed to fetch absences");
 
       const data = await response.json();
-
       setAbsences(data);
     } catch (error) {
       console.error("Error fetching absences:", error);
     }
   };
 
-  // Pobranie danych przy pierwszym renderze
   useEffect(() => {
     fetchAbsences();
   }, [doctorId]);
 
-  // Dodanie nowej absencji
+  // Dodawanie nowej absencji
   const handleAddAbsence = async () => {
-    if (!newAbsence) {
-      alert("Please select a date.");
+    if (!startDate || !endDate) {
+      alert("Please select both start and end dates.");
       return;
     }
 
@@ -43,13 +44,14 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       const response = await fetch("http://localhost:5000/api/auth/absences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ doctorId, date: newAbsence, reason }),
+        body: JSON.stringify({ doctorId, startDate, endDate, reason }),
       });
 
       if (response.ok) {
-        setNewAbsence("");
+        setStartDate("");
+        setEndDate("");
         setReason("");
-        fetchAbsences(); // Pobranie aktualnej listy po dodaniu nowej absencji
+        fetchAbsences();
       } else {
         console.error("Failed to add absence");
       }
@@ -58,7 +60,7 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
     }
   };
 
-  // Usunięcie absencji
+  // Usuwanie absencji
   const handleDeleteAbsence = async (id: number) => {
     try {
       const response = await fetch(
@@ -67,7 +69,7 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       );
 
       if (response.ok) {
-        fetchAbsences(); // Pobranie aktualnej listy po usunięciu absencji
+        fetchAbsences();
       } else {
         console.error("Failed to delete absence");
       }
@@ -75,7 +77,7 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       console.error("Error deleting absence:", error);
     }
   };
-  
+
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">Manage Absences</h2>
@@ -86,8 +88,14 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
         <div className="flex">
           <input
             type="date"
-            value={newAbsence}
-            onChange={(e) => setNewAbsence(e.target.value)}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border p-2 rounded mr-2"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
             className="border p-2 rounded mr-2"
           />
           <input
@@ -109,7 +117,7 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       {/* Lista zaplanowanych absencji */}
       <h3 className="text-lg font-bold mb-2">Planned Absences</h3>
 
-      {absences.length === 0 || absences.length === undefined ? (
+      {absences.length === 0 ? (
         <p className="text-gray-500">No absences recorded.</p>
       ) : (
         <ul>
@@ -119,7 +127,8 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               className="flex justify-between items-center mb-2 p-2 bg-red-200 rounded"
             >
               <span>
-                {absence.date} {absence.reason && `- ${absence.reason}`}
+                {absence.start_date} - {absence.end_date}{" "}
+                {absence.reason && `- ${absence.reason}`}
               </span>
               <button
                 onClick={() => handleDeleteAbsence(absence.id)}
