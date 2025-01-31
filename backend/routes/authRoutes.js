@@ -151,6 +151,31 @@ router.get('/doctor/consultations', (req, res) => {
   
 });
 
+router.get("/patient/consultations", async (req, res) => {
+  const { patientId } = req.query;
+
+  if (!patientId) {
+    return res.status(400).json({ error: "patientId is required" });
+  }
+
+  db.all(
+    `SELECT id, doctor_id, date, start_time, end_time, type, status, notes 
+       FROM consultations 
+       WHERE patient_id = ? 
+       ORDER BY date, start_time`,
+      [patientId],
+      (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: 'Failed to fetch absences' });
+      } else {
+        res.json(rows);
+      }
+    }
+  );
+
+});
+
+
 // Endpoint to fetch doctor absences
 router.get('/doctor/absences', async (req, res) => {
   const { doctorId, startDate, endDate } = req.query;
@@ -296,6 +321,31 @@ router.delete('/absences/:id', async (req, res) => {
     res.status(500).json({ error: "Failed to delete absence" });
   }
 });
+
+
+router.delete("/consultations/:id", async (req, res) => {
+  const { id } = req.params;
+  const { patient_id } = req.body; // Ensure the patient is cancelling their own consultation
+
+  try {
+    // Verify the consultation belongs to the patient
+    const consultation = await db.get(
+      "SELECT * FROM consultations WHERE id = ? AND patient_id = ?",
+      [id, patient_id]
+    );
+
+    if (!consultation) {
+      return res.status(403).json({ error: "Unauthorized or consultation not found" });
+    }
+
+    await db.run("DELETE FROM consultations WHERE id = ?", [id]);
+    res.json({ message: "Consultation canceled successfully" });
+  } catch (error) {
+    console.error("Error canceling consultation:", error);
+    res.status(500).json({ error: "Failed to cancel consultation" });
+  }
+});
+
 
 
 

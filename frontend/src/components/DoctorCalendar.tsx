@@ -103,7 +103,8 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                 const isBooked = consultations.some(
                   (consultation: any) =>
                     consultation.date === formattedDate &&
-                    consultation.start_time === time
+                  consultation.start_time <= time &&
+                  consultation.end_time > time
                 );
 
                 const isAvailable =
@@ -185,7 +186,7 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       return prevWeek;
     });
   };
-
+  
   const [maxHoursVisible, setMaxHoursVisible] = useState(6);
   const [showFullSchedule, setShowFullSchedule] = useState(false);
 

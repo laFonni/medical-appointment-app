@@ -2,147 +2,90 @@ import React, { useState, useEffect } from "react";
 
 interface Consultation {
   id: number;
+  doctor_id: number;
   date: string;
-  time: string;
+  start_time: string;
+  end_time: string;
   type: string;
-  doctorName: string;
-  price: number;
-  status: "Booked" | "Paid";
+  status: string;
+  notes?: string;
 }
 
-const Basket: React.FC<{ patientId: number }> = ({ patientId }) => {
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
-  const [loading, setLoading] = useState(false);
+const Basket: React.FC<{ patientID: number }> = ({ patientID }) => {
+  const [patientConsultations, setPatientConsultations] = useState<Consultation[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch the patient's booked consultations
+  const fetchPatientConsultations = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/auth/patient/consultations?patientId=${patientID}`);
+      if (!response.ok) throw new Error("Failed to fetch consultations");
+
+      const data = await response.json();
+      setPatientConsultations(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching consultations:", error);
+      setError("Failed to load consultations.");
+      setLoading(false);
+    }
+  };
+
+  // Cancel a consultation
+  const handleCancelConsultation = async (consultationId: number) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/auth/consultations/${consultationId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ patient_id: patientID }), // Ensure patient authentication
+      });
+
+      if (response.ok) {
+        alert("Consultation canceled successfully!");
+        setPatientConsultations((prevConsultations) =>
+          prevConsultations.filter((c) => c.id !== consultationId)
+        );
+      } else {
+        const errorData = await response.json();
+        alert(`Cancellation failed: ${errorData.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error canceling consultation:", error);
+      alert("Error canceling consultation.");
+    }
+  };
+
+  // Fetch consultations when component mounts
   useEffect(() => {
-    const fetchConsultations = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/basket/${patientId}`
-        );
-        const data = await response.json();
-        setConsultations(data);
-      } catch (error) {
-        console.error("Error fetching consultations:", error);
-      }
-    };
-
-    fetchConsultations();
-  }, [patientId]);
-
-  const handlePayment = async (consultationId: number) => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/consultations/pay`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ consultationId }),
-        }
-      );
-
-      if (response.ok) {
-        setConsultations((prev) =>
-          prev.map((consultation) =>
-            consultation.id === consultationId
-              ? { ...consultation, status: "Paid" }
-              : consultation
-          )
-        );
-        alert("Payment successful!");
-      } else {
-        alert("Payment failed.");
-      }
-    } catch (error) {
-      console.error("Error during payment:", error);
-      alert("An error occurred during payment.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancellation = async (consultationId: number) => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/consultations/cancel",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ consultationId }),
-        }
-      );
-
-      if (response.ok) {
-        setConsultations((prev) =>
-          prev.filter((consultation) => consultation.id !== consultationId)
-        );
-        alert("Consultation cancelled successfully.");
-      } else {
-        alert("Failed to cancel consultation.");
-      }
-    } catch (error) {
-      console.error("Error during cancellation:", error);
-      alert("An error occurred during cancellation.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchPatientConsultations();
+  }, [patientID]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Your Basket</h2>
+    <div className="p-4 bg-white rounded-lg shadow-md mt-6">
+      <h2 className="text-xl font-bold mb-2">My Booked Consultations</h2>
 
-      {consultations.length === 0 ? (
-        <p>No consultations booked yet.</p>
+      {loading ? (
+        <p className="text-gray-500">Loading consultations...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : patientConsultations.length === 0 ? (
+        <p className="text-gray-500">You have no booked consultations.</p>
       ) : (
-        <ul>
-          {consultations.map((consultation) => (
-            <li
-              key={consultation.id}
-              className="border p-4 rounded mb-2 flex justify-between items-center"
-            >
+        <ul className="border rounded-lg p-4 bg-gray-50">
+          {patientConsultations.map((consultation) => (
+            <li key={consultation.id} className="flex justify-between items-center p-2 border-b last:border-none">
               <div>
-                <p>
-                  <strong>Doctor:</strong> {consultation.doctorName}
-                </p>
-                <p>
-                  <strong>Date:</strong> {consultation.date}
-                </p>
-                <p>
-                  <strong>Time:</strong> {consultation.time}
-                </p>
-                <p>
-                  <strong>Type:</strong> {consultation.type}
-                </p>
-                <p>
-                  <strong>Price:</strong> ${consultation.price.toFixed(2)}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  <span
-                    className={`font-bold ${
-                      consultation.status === "Paid"
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {consultation.status}
-                  </span>
-                </p>
+                <strong>{consultation.type}</strong>
+                <p>{consultation.date} | {consultation.start_time} - {consultation.end_time}</p>
+                <p className="text-sm text-gray-600">{consultation.notes || "No additional notes"}</p>
               </div>
-              {consultation.status === "Booked" && (
-                <button
-                  onClick={() => handleCancellation(consultation.id)}
-                  className={`bg-red-500 text-white px-4 py-2 rounded ${
-                    loading ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              )}
+              <button
+                className="bg-red-500 text-white px-3 py-1 rounded"
+                onClick={() => handleCancelConsultation(consultation.id)}
+              >
+                Cancel
+              </button>
             </li>
           ))}
         </ul>
