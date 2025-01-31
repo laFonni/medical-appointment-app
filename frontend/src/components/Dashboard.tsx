@@ -70,7 +70,8 @@ const Dashboard: React.FC = () => {
             {/* <PatientCalendar /> */}
             <DoctorCalendar doctorId={1} />
             <AvailabilityManager doctorId={1} />
-            {/*<AbsenceManager doctorId={1} /> 
+            <AbsenceManager doctorId={1} />
+            {/*
             <Basket patientId={1}/> */}
             {/* <AbsenceManager doctorId={userData.id} /> */}
           </div>

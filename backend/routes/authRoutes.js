@@ -169,6 +169,27 @@ router.get('/doctor/absences', (req, res) => {
   );
 });
 
+router.get('/doctor/all-absences', async (req, res) => {
+  const { doctorId } = req.query;
+
+  if (!doctorId) {
+    return res.status(400).json({ error: "doctorId is required" });
+  }
+
+  db.all(
+    `SELECT id, date, reason FROM doctor_absences WHERE doctor_id = ?`,
+      [parseInt(doctorId, 10)],
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: 'Failed to fetch absences' });
+      } else {
+        res.json(rows);
+      }
+    }
+  );
+});
+
+
 // Endpoint to create a new consultation
 router.post('/consultations', (req, res) => {
   const { doctor_id, patient_id, date, start_time, end_time, type, status, notes } = req.body;
@@ -224,6 +245,48 @@ router.post('/availability', async (req, res) => {
     res.status(500).send({ error: 'Error saving availability' });
   }
 });
+
+router.post('/absences', async (req, res) => {
+  const { doctorId, date, reason } = req.body;
+
+  if (!doctorId || !date) {
+    return res.status(400).send({ error: 'doctorId and date are required' });
+  }
+
+  try {
+    await db.run(
+      `INSERT INTO doctor_absences (doctor_id, date, reason) VALUES (?, ?, ?)`,
+      [doctorId, date, reason || null]
+    );
+
+    res.status(201).send({ message: 'Absence recorded successfully!' });
+  } catch (error) {
+    console.error('Error saving absence:', error);
+    res.status(500).send({ error: 'Error saving absence' });
+  }
+});
+
+router.delete('/absences/:id', async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: "Absence ID is required" });
+  }
+
+  try {
+    const result = await db.run(`DELETE FROM doctor_absences WHERE id = ?`, [id]);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: "Absence not found" });
+    }
+
+    res.json({ message: "Absence deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting absence:", error);
+    res.status(500).json({ error: "Failed to delete absence" });
+  }
+});
+
 
 
 module.exports = router;

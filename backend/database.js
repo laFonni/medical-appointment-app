@@ -44,8 +44,6 @@ const db = new sqlite3.Database('./medicalAppDB.sqlite', (err) => {
       FOREIGN KEY (doctor_id) REFERENCES users(id)
     )`);
 
-    
-
     // Tabela niedostępności lekarza
     db.run(`CREATE TABLE IF NOT EXISTS doctor_absences(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
