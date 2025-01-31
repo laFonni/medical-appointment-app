@@ -4,7 +4,7 @@ interface Availability {
   type: "Cyclic" | "Single";
   startDate?: string;
   endDate?: string;
-  daysOfWeek?: string[]; // Maski dni tygodnia
+  daysOfWeek?: string[];
   timeSlots?: { start: string; end: string }[];
   singleDate?: string;
 }
@@ -25,6 +25,15 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
     singleDate: "",
     timeSlots: [],
   });
+
+  const roundToNearest30 = (time: string): string => {
+    const [hours, minutes] = time.split(":").map(Number);
+    const roundedMinutes = minutes < 15 ? 0 : minutes < 45 ? 30 : 0;
+    const adjustedHours = minutes >= 45 ? (hours + 1) % 24 : hours;
+    return `${String(adjustedHours).padStart(2, "0")}:${String(
+      roundedMinutes
+    ).padStart(2, "0")}`;
+  };
 
   const daysOfWeek = [
     "Monday",
@@ -188,26 +197,46 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               <div key={index} className="flex mb-2">
                 <input
                   type="time"
+                  step="1800"
+                  list="time-options"
                   value={slot.start}
                   onChange={(e) => {
+                    const roundedTime = roundToNearest30(e.target.value);
                     const timeSlots = [...(cyclicAvailability.timeSlots || [])];
-                    timeSlots[index].start = e.target.value;
+                    timeSlots[index].start = roundedTime;
                     setCyclicAvailability({ ...cyclicAvailability, timeSlots });
                   }}
                   className="border p-2 rounded mr-2"
                 />
                 <input
                   type="time"
+                  step="1800"
+                  list="time-options"
                   value={slot.end}
                   onChange={(e) => {
+                    const roundedTime = roundToNearest30(e.target.value);
                     const timeSlots = [...(cyclicAvailability.timeSlots || [])];
-                    timeSlots[index].end = e.target.value;
+                    timeSlots[index].end = roundedTime;
                     setCyclicAvailability({ ...cyclicAvailability, timeSlots });
                   }}
                   className="border p-2 rounded"
                 />
               </div>
             ))}
+
+            <datalist id="time-options">
+              {Array.from({ length: 48 }).map((_, index) => {
+                const hours = Math.floor(index / 2);
+                const minutes = index % 2 === 0 ? "00" : "30";
+                return (
+                  <option
+                    key={index}
+                    value={`${String(hours).padStart(2, "0")}:${minutes}`}
+                  />
+                );
+              })}
+            </datalist>
+
             <button
               onClick={() => handleAddTimeSlot("Cyclic")}
               className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -242,10 +271,13 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
               <div key={index} className="flex mb-2">
                 <input
                   type="time"
+                  step="1800"
+                  list="time-options"
                   value={slot.start}
                   onChange={(e) => {
+                    const roundedTime = roundToNearest30(e.target.value);
                     const timeSlots = [...(singleAvailability.timeSlots || [])];
-                    timeSlots[index].start = e.target.value;
+                    timeSlots[index].start = roundedTime;
                     setSingleAvailability({ ...singleAvailability, timeSlots });
                   }}
                   className="border p-2 rounded mr-2"
@@ -253,15 +285,31 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                 <input
                   type="time"
                   value={slot.end}
+                  list="time-options"
                   onChange={(e) => {
+                    const roundedTime = roundToNearest30(e.target.value);
                     const timeSlots = [...(singleAvailability.timeSlots || [])];
-                    timeSlots[index].end = e.target.value;
+                    timeSlots[index].end = roundedTime;
                     setSingleAvailability({ ...singleAvailability, timeSlots });
                   }}
                   className="border p-2 rounded"
                 />
               </div>
             ))}
+
+            <datalist id="time-options">
+              {Array.from({ length: 48 }).map((_, index) => {
+                const hours = Math.floor(index / 2);
+                const minutes = index % 2 === 0 ? "00" : "30";
+                return (
+                  <option
+                    key={index}
+                    value={`${String(hours).padStart(2, "0")}:${minutes}`}
+                  />
+                );
+              })}
+            </datalist>
+
             <button
               onClick={() => handleAddTimeSlot("Single")}
               className="bg-blue-500 text-white px-4 py-2 rounded"

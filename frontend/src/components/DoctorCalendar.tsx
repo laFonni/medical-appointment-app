@@ -90,9 +90,17 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                   start: string,
                   end: string,
                   current: string
-                ) =>
-                  timeToMinutes(current) >= timeToMinutes(start) &&
-                  timeToMinutes(current) < timeToMinutes(end);
+                ) => {
+                  const startMins = timeToMinutes(start);
+                  const endMins = timeToMinutes(end);
+                  const currentMins = timeToMinutes(current);
+
+                  if (startMins <= endMins) {
+                    return currentMins >= startMins && currentMins < endMins;
+                  } else {
+                    return currentMins >= startMins || currentMins < endMins;
+                  }
+                };
 
                 const isBooked = consultations.some(
                   (consultation: any) =>
@@ -102,21 +110,22 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
 
                 const isAvailable =
                   !isBooked &&
-                  availability.some((availability: any) =>
-                    availability.start_date <= formattedDate &&
-                    availability.end_date >= formattedDate &&
-                    availability.type == "Cyclic"
-                      ? availability.days_mask
-                          .split(",")
-                          .includes(getDayName(date))
-                      : [
-                          getDayName(new Date(availability.start_date)),
-                        ].includes(getDayName(date)) &&
-                        isInTimeRange(
-                          availability.start_time,
-                          availability.end_time,
-                          time
-                        )
+                  availability.some(
+                    (availability: any) =>
+                      availability.start_date <= formattedDate &&
+                      availability.end_date >= formattedDate &&
+                      isInTimeRange(
+                        availability.start_time,
+                        availability.end_time,
+                        time
+                      ) &&
+                      (availability.type == "Cyclic"
+                        ? availability.days_mask
+                            .split(",")
+                            .includes(getDayName(date))
+                        : [
+                            getDayName(new Date(availability.start_date)),
+                          ].includes(getDayName(date)))
                   );
 
                 const isAbsent = absences.includes(formattedDate);
@@ -194,7 +203,7 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       <div className="flex justify-center mt-4">
         {!showFullSchedule ? (
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700"
             onClick={() => setShowFullSchedule(true)}
           >
             Show Full Schedule
