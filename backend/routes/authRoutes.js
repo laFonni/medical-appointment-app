@@ -382,6 +382,33 @@ router.get("/doctors", (req, res) => {
 });
 
 
+// Get all users (Admin only)
+router.get("/users", (req, res) => {
+  db.all("SELECT id, name, lastName, email, role FROM users", [], (err, rows) => {
+    if (err) {
+      console.error("Error fetching users:", err);
+      return res.status(500).json({ error: "Failed to fetch users" });
+    }
+    res.json(rows || []);
+  });
+});
 
+// Update user role (Admin only)
+router.patch("/users/:id/role", (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  if (!["Patient", "Doctor", "Admin"].includes(role)) {
+    return res.status(400).json({ error: "Invalid role" });
+  }
+
+  db.run("UPDATE users SET role = ? WHERE id = ?", [role, id], function (err) {
+    if (err) {
+      console.error("Error updating user role:", err);
+      return res.status(500).json({ error: "Failed to update role" });
+    }
+    res.json({ success: true, updatedRows: this.changes });
+  });
+});
 
 module.exports = router;

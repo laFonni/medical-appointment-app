@@ -7,6 +7,7 @@ import DoctorCalendar from "./DoctorCalendar";
 import AvailabilityManager from "./AvalibilityManager";
 import AbsenceManager from "./AbsenceManager";
 import PatientCalendar from "./PatientCalendar";
+import AdminPanel from "./AdminPanel";
 import Basket from "./Basket";
 
 interface UserData {
@@ -14,7 +15,7 @@ interface UserData {
   name: string;
   lastName: string;
   email: string;
-  role: "Doctor" | "Patient";
+  role: "Doctor" | "Patient" | 'Admin';
 }
 
 interface Doctor {
@@ -85,6 +86,13 @@ const Dashboard: React.FC = () => {
       <Navbar userData={userData} />
       <div className="p-6 max-w-10xl mx-auto">
         <h1 className="text-3xl font-semibold text-white">Welcome, {userData.name}</h1>
+
+        {userData.role === "Admin" && (
+          <div className="mt-4">
+            <h2 className="text-xl font-bold">Admin Dashboard</h2>
+            <AdminPanel/>
+          </div>
+        )}
   
         {/* Patient Dashboard */}
         {userData.role === "Patient" && (
