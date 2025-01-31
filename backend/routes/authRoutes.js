@@ -346,6 +346,40 @@ router.delete("/consultations/:id", async (req, res) => {
   }
 });
 
+router.post("/patient/checkout", async (req, res) => {
+  const { patientID } = req.body;
+
+  if (!patientID) {
+    return res.status(400).json({ error: "patientID is required" });
+  }
+
+  try {
+    await db.run(
+      `UPDATE consultations SET status = 'Paid' WHERE patient_id = ? AND status = 'Booked'`,
+      [patientID]
+    );
+
+    res.status(200).json({ message: "Checkout successful. All consultations are now paid." });
+  } catch (error) {
+    console.error("Error processing checkout:", error);
+    res.status(500).json({ error: "Failed to process checkout." });
+  }
+});
+
+
+router.get("/doctors", (req, res) => {
+  db.all(
+    `SELECT id, name, lastName FROM users WHERE role = 'Doctor' ORDER BY lastName`,
+    [],
+    (err, doctors) => {
+      if (err) {
+        console.error("Error fetching doctors:", err);
+        return res.status(500).json({ error: "Failed to fetch doctors" });
+      }
+      res.json(doctors || []); // Ensure it always returns an array
+    }
+  );
+});
 
 
 
