@@ -79,60 +79,62 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Manage Absences</h2>
-
-      {/* Dodawanie nowej absencji */}
-      <div className="mb-4">
-        <label className="block font-bold mb-2">Add Absence</label>
-        <div className="flex">
+    <div className="p-6 bg-gray-900 text-gray-200 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold mb-4 text-gray-100">Manage Absences</h2>
+  
+      {/* Add Absence Section */}
+      <div className="mb-6 p-4 bg-gray-800 rounded-lg shadow-md">
+        <h3 className="font-semibold text-lg text-gray-300 mb-3">Add Absence</h3>
+        <div className="flex flex-wrap gap-2">
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="border p-2 rounded mr-2"
+            className="bg-gray-700 text-gray-300 border border-gray-600 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="border p-2 rounded mr-2"
+            className="bg-gray-700 text-gray-300 border border-gray-600 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <input
             type="text"
             placeholder="Reason (optional)"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="border p-2 rounded mr-2"
+            className="bg-gray-700 text-gray-300 border border-gray-600 p-2 rounded-md w-full sm:w-auto focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <button
             onClick={handleAddAbsence}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-600 hover:bg-blue-700 transition-colors px-4 py-2 rounded-md text-white font-semibold shadow-md"
           >
             Add
           </button>
         </div>
       </div>
-
-      {/* Lista zaplanowanych absencji */}
-      <h3 className="text-lg font-bold mb-2">Planned Absences</h3>
-
+  
+      {/* List of Absences */}
+      <h3 className="text-lg font-bold mb-3 text-gray-300">Planned Absences</h3>
+  
       {absences.length === 0 ? (
-        <p className="text-gray-500">No absences recorded.</p>
+        <p className="text-gray-500 text-center p-4 bg-gray-800 rounded-md">
+          No absences recorded.
+        </p>
       ) : (
-        <ul>
+        <ul className="space-y-3">
           {absences.map((absence) => (
             <li
               key={absence.id}
-              className="flex justify-between items-center mb-2 p-2 bg-red-200 rounded"
+              className="flex justify-between items-center p-3 bg-gray-800 rounded-md shadow-md border border-gray-700"
             >
-              <span>
-                {absence.start_date} - {absence.end_date}{" "}
-                {absence.reason && `- ${absence.reason}`}
+              <span className="text-gray-300">
+                {absence.start_date} - {absence.end_date}
+                {absence.reason && ` - ${absence.reason}`}
               </span>
               <button
                 onClick={() => handleDeleteAbsence(absence.id)}
-                className="bg-red-500 text-white px-3 py-1 rounded"
+                className="bg-red-600 hover:bg-red-700 transition-colors px-3 py-1 rounded-md text-white font-semibold shadow-md"
               >
                 Delete
               </button>
@@ -142,6 +144,7 @@ const AbsenceManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
       )}
     </div>
   );
+  
 };
 
 export default AbsenceManager;

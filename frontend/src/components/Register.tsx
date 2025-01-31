@@ -48,9 +48,9 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-xs p-6 rounded-lg bg-white shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="w-full max-w-xs p-6 rounded-lg bg-gray-800 shadow-lg">
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-400">Register</h2>
         <form onSubmit={onSubmit}>
           <div className="mb-4">
             <input
@@ -60,7 +60,7 @@ const Register: React.FC = () => {
               onChange={onChange}
               placeholder="Name"
               required
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
             />
           </div>
           <div className="mb-4">
@@ -71,7 +71,7 @@ const Register: React.FC = () => {
               onChange={onChange}
               placeholder="Last Name"
               required
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
             />
           </div>
           <div className="mb-4">
@@ -82,7 +82,7 @@ const Register: React.FC = () => {
               onChange={onChange}
               placeholder="Email"
               required
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
             />
           </div>
           <div className="mb-4">
@@ -93,14 +93,11 @@ const Register: React.FC = () => {
               onChange={onChange}
               placeholder="Password"
               required
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
             />
           </div>
           <div className="mb-4">
-            <label
-              htmlFor="role"
-              className="block mb-2 text-sm font-medium text-gray-900"
-            >
+            <label htmlFor="role" className="block mb-2 text-sm font-medium text-gray-300">
               Select your role:
             </label>
             <select
@@ -108,7 +105,7 @@ const Register: React.FC = () => {
               value={role}
               onChange={onChange}
               required
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Patient">Patient</option>
               <option value="Doctor">Doctor</option>
@@ -116,13 +113,13 @@ const Register: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="w-full bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded-md text-white font-semibold shadow-md"
           >
             Register
           </button>
-          <p className="mt-4 text-center">
+          <p className="mt-4 text-center text-gray-400">
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-500 hover:text-blue-700">
+            <Link to="/login" className="text-blue-400 hover:underline">
               Login
             </Link>
           </p>
@@ -130,6 +127,7 @@ const Register: React.FC = () => {
       </div>
     </div>
   );
+  
 };
 
 export default Register;

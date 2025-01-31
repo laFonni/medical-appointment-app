@@ -16,41 +16,42 @@ const Navbar: React.FC<NavbarProps> = ({ userData }) => {
   const navigate = useNavigate();
 
   return (
-    <nav className="bg-blue-500 text-white px-4 py-2 shadow-md">
+    <nav className="bg-gray-900 text-gray-200 px-6 py-3 shadow-md">
       <div className="flex justify-between items-center">
-        {/* Lewa część - Dane użytkownika i tryb */}
+        {/* Left Side - User Info & Mode */}
         <div>
-          <span className="font-bold">
+          <span className="font-bold text-white">
             {userData.name} {userData.lastName}
           </span>
-          <span className="ml-2 text-sm italic">({userData.role})</span>
-          <span className="ml-4 text-sm bg-gray-700 px-2 py-1 rounded">
+          <span className="ml-2 text-sm italic text-gray-400">({userData.role})</span>
+          <span className="ml-4 text-sm bg-gray-700 px-2 py-1 rounded-md text-gray-300">
             Mode: {authMode}
           </span>
         </div>
 
-        {/* Prawa część - Menu */}
+        {/* Right Side - Menu */}
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="focus:outline-none hover:bg-blue-600 p-2 rounded"
+            className="focus:outline-none bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md transition"
           >
             Menu
           </button>
 
-          {/* Rozwijane menu */}
+          {/* Dropdown Menu */}
           {menuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-md rounded">
+            <div className="absolute right-0 mt-2 w-48 bg-gray-800 text-gray-300 shadow-lg rounded-md">
               <ul>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer rounded-t-md">
                   <Link to="/profile">Profile</Link>
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <li className="px-4 py-2 hover:bg-red-600 cursor-pointer rounded-b-md">
                   <button
                     onClick={() => {
                       clearToken();
                       navigate("/login");
                     }}
+                    className="w-full text-left"
                   >
                     Logout
                   </button>
@@ -61,7 +62,8 @@ const Navbar: React.FC<NavbarProps> = ({ userData }) => {
         </div>
       </div>
     </nav>
-  );
+);
+
 };
 
 export default Navbar;

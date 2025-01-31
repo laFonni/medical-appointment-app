@@ -108,93 +108,134 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Manage Availability</h2>
+    <div className="p-6 bg-gray-900 text-gray-200 rounded-xl shadow-xl">
+      <h2 className="text-2xl font-bold mb-6 text-blue-400">
+        Manage Availability
+      </h2>
 
-      {/* Wybór trybu dostępności */}
-      <div className="mb-4">
-        <label className="mr-4">
+      {/* Availability Type Selection */}
+      <div className="mb-6 flex space-x-6">
+        <label className="flex items-center cursor-pointer">
           <input
             type="radio"
             name="availabilityType"
             value="cyclic"
             checked={availabilityType === "Cyclic"}
             onChange={() => setAvailabilityType("Cyclic")}
+            className="hidden"
           />
-          Cyclic Availability
+          <span
+            className={`px-4 py-2 rounded-lg transition ${
+              availabilityType === "Cyclic"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+            }`}
+          >
+            Cyclic Availability
+          </span>
         </label>
-        <label>
+        <label className="flex items-center cursor-pointer">
           <input
             type="radio"
             name="availabilityType"
             value="single"
             checked={availabilityType === "Single"}
             onChange={() => setAvailabilityType("Single")}
+            className="hidden"
           />
-          Single Availability
+          <span
+            className={`px-4 py-2 rounded-lg transition ${
+              availabilityType === "Single"
+                ? "bg-green-600 text-white"
+                : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+            }`}
+          >
+            Single Availability
+          </span>
         </label>
       </div>
 
-      {/* Cyclic Availability */}
+      {/* Cyclic Availability Section */}
       {availabilityType === "Cyclic" && (
-        <div>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <div className="mb-4">
-            <label className="block mb-2 font-bold">Date Range</label>
-            <input
-              type="date"
-              value={cyclicAvailability.startDate}
-              onChange={(e) =>
-                setCyclicAvailability({
-                  ...cyclicAvailability,
-                  startDate: e.target.value,
-                })
-              }
-              className="border p-2 rounded mr-2"
-            />
-            <input
-              type="date"
-              value={cyclicAvailability.endDate}
-              onChange={(e) =>
-                setCyclicAvailability({
-                  ...cyclicAvailability,
-                  endDate: e.target.value,
-                })
-              }
-              className="border p-2 rounded"
-            />
+            <label className="block mb-2 font-bold text-gray-300">
+              Date Range
+            </label>
+            <div className="flex space-x-4">
+              <input
+                type="date"
+                value={cyclicAvailability.startDate}
+                onChange={(e) =>
+                  setCyclicAvailability({
+                    ...cyclicAvailability,
+                    startDate: e.target.value,
+                  })
+                }
+                className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
+              />
+              <input
+                type="date"
+                value={cyclicAvailability.endDate}
+                onChange={(e) =>
+                  setCyclicAvailability({
+                    ...cyclicAvailability,
+                    endDate: e.target.value,
+                  })
+                }
+                className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
+              />
+            </div>
           </div>
 
+          {/* Days of the Week Selection */}
           <div className="mb-4">
-            <label className="block mb-2 font-bold">Days of the Week</label>
-            {daysOfWeek.map((day) => (
-              <label key={day} className="mr-4">
-                <input
-                  type="checkbox"
-                  value={day}
-                  onChange={(e) => {
-                    const selectedDays = cyclicAvailability.daysOfWeek || [];
-                    if (e.target.checked) {
-                      setCyclicAvailability({
-                        ...cyclicAvailability,
-                        daysOfWeek: [...selectedDays, day],
-                      });
-                    } else {
-                      setCyclicAvailability({
-                        ...cyclicAvailability,
-                        daysOfWeek: selectedDays.filter((d) => d !== day),
-                      });
-                    }
-                  }}
-                />
-                {day}
-              </label>
-            ))}
+            <label className="block mb-2 font-bold text-gray-300">
+              Days of the Week
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {daysOfWeek.map((day) => (
+                <label key={day} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    value={day}
+                    className="hidden"
+                    onChange={(e) => {
+                      const selectedDays = cyclicAvailability.daysOfWeek || [];
+                      if (e.target.checked) {
+                        setCyclicAvailability({
+                          ...cyclicAvailability,
+                          daysOfWeek: [...selectedDays, day],
+                        });
+                      } else {
+                        setCyclicAvailability({
+                          ...cyclicAvailability,
+                          daysOfWeek: selectedDays.filter((d) => d !== day),
+                        });
+                      }
+                    }}
+                  />
+                  <span
+                    className={`px-3 py-1 rounded-lg transition ${
+                      cyclicAvailability.daysOfWeek?.includes(day)
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    {day}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
 
+          {/* Time Slots for Cyclic Availability */}
           <div className="mb-4">
-            <label className="block mb-2 font-bold">Time Slots</label>
+            <label className="block mb-2 font-bold text-gray-300">
+              Time Slots
+            </label>
             {cyclicAvailability.timeSlots?.map((slot, index) => (
-              <div key={index} className="flex mb-2">
+              <div key={index} className="flex space-x-4 mb-2">
                 <input
                   type="time"
                   step="1800"
@@ -206,7 +247,7 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                     timeSlots[index].start = roundedTime;
                     setCyclicAvailability({ ...cyclicAvailability, timeSlots });
                   }}
-                  className="border p-2 rounded mr-2"
+                  className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
                 />
                 <input
                   type="time"
@@ -219,27 +260,14 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                     timeSlots[index].end = roundedTime;
                     setCyclicAvailability({ ...cyclicAvailability, timeSlots });
                   }}
-                  className="border p-2 rounded"
+                  className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
                 />
               </div>
             ))}
 
-            <datalist id="time-options">
-              {Array.from({ length: 48 }).map((_, index) => {
-                const hours = Math.floor(index / 2);
-                const minutes = index % 2 === 0 ? "00" : "30";
-                return (
-                  <option
-                    key={index}
-                    value={`${String(hours).padStart(2, "0")}:${minutes}`}
-                  />
-                );
-              })}
-            </datalist>
-
             <button
               onClick={() => handleAddTimeSlot("Cyclic")}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition"
             >
               Add Time Slot
             </button>
@@ -247,11 +275,11 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
         </div>
       )}
 
-      {/* Single Availability */}
+      {/* Single Availability Section */}
       {availabilityType === "Single" && (
-        <div>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <div className="mb-4">
-            <label className="block mb-2 font-bold">Date</label>
+            <label className="block mb-2 font-bold text-gray-300">Date</label>
             <input
               type="date"
               value={singleAvailability.singleDate}
@@ -261,18 +289,20 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                   singleDate: e.target.value,
                 })
               }
-              className="border p-2 rounded"
+              className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
             />
           </div>
 
+          {/* Time Slots for Single Availability */}
           <div className="mb-4">
-            <label className="block mb-2 font-bold">Time Slots</label>
+            <label className="block mb-2 font-bold text-gray-300">
+              Time Slots
+            </label>
             {singleAvailability.timeSlots?.map((slot, index) => (
-              <div key={index} className="flex mb-2">
+              <div key={index} className="flex space-x-4 mb-2">
                 <input
                   type="time"
                   step="1800"
-                  list="time-options"
                   value={slot.start}
                   onChange={(e) => {
                     const roundedTime = roundToNearest30(e.target.value);
@@ -280,39 +310,25 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
                     timeSlots[index].start = roundedTime;
                     setSingleAvailability({ ...singleAvailability, timeSlots });
                   }}
-                  className="border p-2 rounded mr-2"
+                  className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
                 />
                 <input
                   type="time"
                   value={slot.end}
-                  list="time-options"
                   onChange={(e) => {
                     const roundedTime = roundToNearest30(e.target.value);
                     const timeSlots = [...(singleAvailability.timeSlots || [])];
                     timeSlots[index].end = roundedTime;
                     setSingleAvailability({ ...singleAvailability, timeSlots });
                   }}
-                  className="border p-2 rounded"
+                  className="border border-gray-600 bg-gray-700 text-gray-200 px-3 py-2 rounded-lg"
                 />
               </div>
             ))}
 
-            <datalist id="time-options">
-              {Array.from({ length: 48 }).map((_, index) => {
-                const hours = Math.floor(index / 2);
-                const minutes = index % 2 === 0 ? "00" : "30";
-                return (
-                  <option
-                    key={index}
-                    value={`${String(hours).padStart(2, "0")}:${minutes}`}
-                  />
-                );
-              })}
-            </datalist>
-
             <button
               onClick={() => handleAddTimeSlot("Single")}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition"
             >
               Add Time Slot
             </button>
@@ -322,7 +338,7 @@ const AvailabilityManager: React.FC<{ doctorId: number }> = ({ doctorId }) => {
 
       <button
         onClick={handleSubmit}
-        className="bg-green-500 text-white px-4 py-2 rounded"
+        className="bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-lg transition"
       >
         Save Availability
       </button>

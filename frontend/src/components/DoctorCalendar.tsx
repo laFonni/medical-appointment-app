@@ -201,135 +201,101 @@ const DoctorCalendar: React.FC<{ doctorId: number }> = ({ doctorId }) => {
     ? Array.from({ length: 24 }, (_, i) => i) // Wszystkie godziny od 0 do 23
     : Array.from({ length: adjustedMaxHours }, (_, i) => startHour + i);
 
-  return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <div className="flex justify-center mt-4">
-        {!showFullSchedule ? (
+    return (
+      <div className="p-6 bg-gray-900 text-gray-200 rounded-xl shadow-xl">
+        {/* Show Full Schedule Toggle */}
+        <div className="flex justify-center mt-4">
           <button
-            className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700"
-            onClick={() => setShowFullSchedule(true)}
-          >
-            Show Full Schedule
-          </button>
-        ) : (
-          <button
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
-            onClick={() => setShowFullSchedule(false)}
-          >
-            Show Default Schedule
-          </button>
-        )}
-      </div>
-      {/* Weekly Navigation */}
-      <div className="flex justify-between items-center mb-4">
-        <button
-          className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-          onClick={handlePrevWeek}
-        >
-          Previous Week
-        </button>
-        <h2 className="text-xl font-bold">
-          Weekly Schedule (
-          {currentWeekStart.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          })}{" "}
-          -{" "}
-          {new Date(
-            currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000
-          ).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-          )
-        </h2>
-        <button
-          className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-          onClick={handleNextWeek}
-        >
-          Next Week
-        </button>
-      </div>
-
-      {/* Calendar */}
-      <div className="grid grid-cols-8 gap-1">
-        {/* Day Headers */}
-        <div className="border p-2 font-bold text-center">Time</div>
-        {schedule.map((day) => (
-          <div
-            key={day.date}
-            className={`border p-2 font-bold text-center ${
-              day.date === currentDay ? "bg-yellow-100" : ""
+            className={`px-4 py-2 rounded-md font-semibold transition ${
+              showFullSchedule
+                ? "bg-gray-700 hover:bg-gray-600 text-white"
+                : "bg-blue-600 hover:bg-blue-500 text-white"
             }`}
+            onClick={() => setShowFullSchedule(!showFullSchedule)}
           >
-            <div>
-              {new Date(day.date).toLocaleDateString("en-US", {
-                weekday: "long",
-              })}
+            {showFullSchedule ? "Show Default Schedule" : "Show Full Schedule"}
+          </button>
+        </div>
+    
+        {/* Weekly Navigation */}
+        <div className="flex justify-between items-center my-6">
+          <button
+            className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition"
+            onClick={handlePrevWeek}
+          >
+            ◀ Previous Week
+          </button>
+          <h2 className="text-xl font-bold text-blue-400">
+            {currentWeekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
+            {new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          </h2>
+          <button
+            className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition"
+            onClick={handleNextWeek}
+          >
+            Next Week ▶
+          </button>
+        </div>
+    
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-8 gap-2 border border-gray-700 rounded-lg p-4 bg-gray-800 bg-opacity-50">
+          {/* Time Label Column */}
+          <div className="text-center text-gray-400 font-bold p-2">Time</div>
+    
+          {/* Day Headers */}
+          {schedule.map((day) => (
+            <div
+              key={day.date}
+              className={`text-center font-bold p-2 rounded-lg transition ${
+                day.date === currentDay ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300"
+              }`}
+            >
+              <div className="text-md">{new Date(day.date).toLocaleDateString("en-US", { weekday: "long" })}</div>
+              <div className="text-sm text-gray-400">{new Date(day.date).toLocaleDateString("en-US", { day: "numeric", month: "short" })}</div>
             </div>
-            <div>
-              {new Date(day.date).toLocaleDateString("en-US", {
-                day: "numeric",
-                month: "short",
-              })}
-            </div>
-          </div>
-        ))}
-
-        {/* Time Slots */}
-        {hoursToDisplay.map((hour) => (
-          <React.Fragment key={hour}>
-            {/* Time Labels */}
-            <div className="border p-2 text-center flex flex-col justify-center items-center">
-              <div
-                className={`mb-2 ${
-                  currentHour === hour && currentMinute < 30
-                    ? "bg-blue-200 font-bold"
-                    : ""
-                }`}
-              >
-                {`${hour}:00`}
+          ))}
+    
+          {/* Time Slots */}
+          {hoursToDisplay.map((hour) => (
+            <React.Fragment key={hour}>
+              {/* Time Labels */}
+              <div className="text-center font-mono text-gray-400">
+                <div className={`mb-1 p-2 ${currentHour === hour && currentMinute < 30 ? "bg-blue-600 text-white rounded-md" : ""}`}>
+                  {`${hour}:00`}
+                </div>
+                <div className={`${currentHour === hour && currentMinute >= 30 ? "bg-blue-600 text-white rounded-md" : ""}`}>
+                  {`${hour}:30`}
+                </div>
               </div>
-              <div
-                className={`${
-                  currentHour === hour && currentMinute >= 30
-                    ? "bg-blue-200 font-bold"
-                    : ""
-                }`}
-              >
-                {`${hour}:30`}
-              </div>
-            </div>
-            {schedule.map((day) => (
-              <div
-                key={`${day.date}-${hour}`}
-                className={`border p-1 ${
-                  day.date === currentDay ? "bg-yellow-50" : ""
-                }`}
-              >
-                {day.slots
-                  .filter((slot) =>
-                    slot.time.startsWith(`${hour.toString().padStart(2, "0")}:`)
-                  )
-                  .map((slot, idx) => (
-                    <div
-                      key={idx}
-                      className={`rounded p-1 text-center ${
-                        slot.status === "Booked"
-                          ? "bg-green-200"
-                          : slot.status === "Available"
-                          ? "bg-gray-200 hover:bg-blue-200"
-                          : "bg-red-200 opacity-50"
-                      }`}
-                      title={slot.details || "No details"}
-                    >
-                      {slot.type || "Unavailable"}
-                    </div>
-                  ))}
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
+    
+              {/* Time Slots for Each Day */}
+              {schedule.map((day) => (
+                <div key={`${day.date}-${hour}`} className="p-1">
+                  {day.slots
+                    .filter((slot) => slot.time.startsWith(`${hour.toString().padStart(2, "0")}:`))
+                    .map((slot, idx) => (
+                      <div
+                        key={idx}
+                        className={`rounded-lg p-2 text-center font-semibold cursor-pointer transition ${
+                          slot.status === "Booked"
+                            ? "bg-green-600 text-white shadow-lg"
+                            : slot.status === "Available"
+                            ? "bg-gray-700 hover:bg-blue-500 text-white shadow-md"
+                            : "bg-red-700 text-gray-400 opacity-50"
+                        }`}
+                        title={slot.details || "No details"}
+                      >
+                        {slot.type || "Unavailable"}
+                      </div>
+                    ))}
+                </div>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+    
 };
 
 export default DoctorCalendar;

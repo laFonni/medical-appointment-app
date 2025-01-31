@@ -52,6 +52,7 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
     : Array.from({ length: adjustedMaxHours }, (_, i) => startHour + i); // Limited to visible range
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const currentDay = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -213,34 +214,36 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
   };
 
   const handleCancelConsultation = async (consultationId: number) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/auth/consultations/${consultationId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patient_id: patientID }), // Ensure patient authentication
-      });
-  
-      if (response.ok) {
-        alert("Consultation canceled successfully!");
-        // Refresh the schedule after cancellation
-        setSchedule((prevSchedule) =>
-          prevSchedule.map((day) => ({
-            ...day,
-            slots: day.slots.map((slot) =>
-              slot.status === "Booked" ? { ...slot, status: "Available", type: "Available Slot" } : slot
-            ),
-          }))
-        );
-      } else {
-        const errorData = await response.json();
-        alert(`Cancellation failed: ${errorData.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      console.error("Error canceling consultation:", error);
-      alert("Error canceling consultation.");
+  try {
+    const response = await fetch(`http://localhost:5000/api/auth/consultations/${consultationId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patient_id: patientID }), // Ensure patient authentication
+    });
+
+    if (response.ok) {
+      alert("Consultation canceled successfully!");
+      // Refresh the schedule after cancellation
+      setSchedule((prevSchedule) =>
+        prevSchedule.map((day) => ({
+          ...day,
+          slots: day.slots.map((slot) =>
+            slot.status === "Booked" ? { ...slot, status: "Available", type: "Available Slot" } : slot
+          ),
+        }))
+      );
+    } else {
+      const errorData = await response.json();
+      alert(`Cancellation failed: ${errorData.error || "Unknown error"}`);
     }
-  };
-  
+  } catch (error) {
+    console.error("Error canceling consultation:", error);
+    alert("Error canceling consultation.");
+  }
+};
+
+  const currentMinute = new Date().getMinutes();
+
 
   const handleNextWeek = () => {
     setCurrentWeekStart((prev) => {
@@ -285,70 +288,104 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
+    <div className="p-6 bg-gray-900 text-gray-200 rounded-xl shadow-xl">
+      {/* Show Full Schedule Toggle */}
       <div className="flex justify-center mt-4">
-        {!showFullSchedule ? (
-          <button
-            className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700"
-            onClick={() => setShowFullSchedule(true)}
-          >
-            Show Full Schedule
-          </button>
-        ) : (
-          <button
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
-            onClick={() => setShowFullSchedule(false)}
-          >
-            Show Default Schedule
-          </button>
-        )}
-      </div>
-
-      <div className="flex justify-between items-center mb-4">
         <button
-          className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          className={`px-6 py-2 rounded-md font-semibold transition ${
+            showFullSchedule
+              ? "bg-gray-700 hover:bg-gray-600 text-white"
+              : "bg-blue-600 hover:bg-blue-500 text-white"
+          }`}
+          onClick={() => setShowFullSchedule(!showFullSchedule)}
+        >
+          {showFullSchedule ? "Show Default Schedule" : "Show Full Schedule"}
+        </button>
+      </div>
+  
+      {/* Weekly Navigation */}
+      <div className="flex justify-between items-center my-6">
+        <button
+          className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition text-white font-semibold"
           onClick={handlePrevWeek}
         >
-          Previous Week
+          ◀ Previous Week
         </button>
-        <h2 className="text-xl font-bold">
-          {currentWeekStart.toLocaleDateString()} -{" "}
+        <h2 className="text-xl font-bold text-blue-400">
+          {currentWeekStart.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          })}{" "}
+          -{" "}
           {new Date(
             currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000
-          ).toLocaleDateString()}
+          ).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
         </h2>
         <button
-          className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md transition text-white font-semibold"
           onClick={handleNextWeek}
         >
-          Next Week
+          Next Week ▶
         </button>
       </div>
-
-      <div className="grid grid-cols-8 gap-1">
-        {/* Time Label Header */}
-        <div className="border p-2 font-bold text-center">Time</div>
+  
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-8 gap-2 border border-gray-700 rounded-lg p-4 bg-gray-800 bg-opacity-50">
+        {/* Time Label Column */}
+        <div className="text-center text-gray-400 font-bold p-2">Time</div>
+  
+        {/* Day Headers */}
         {schedule.map((day) => (
-          <div key={day.date} className="border p-2 font-bold text-center">
-            {new Date(day.date).toLocaleDateString("en-US", {
-              weekday: "long",
-              day: "numeric",
-              month: "short",
-            })}
+          <div
+            key={day.date}
+            className={`text-center font-bold p-2 rounded-lg transition ${
+              day.date === currentDay
+                ? "bg-blue-500 text-white"
+                : "bg-gray-700 text-gray-300"
+            }`}
+          >
+            <div className="text-md">
+              {new Date(day.date).toLocaleDateString("en-US", {
+                weekday: "long",
+              })}
+            </div>
+            <div className="text-sm text-gray-400">
+              {new Date(day.date).toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "short",
+              })}
+            </div>
           </div>
         ))}
-
+  
         {/* Time Slots */}
         {hoursToDisplay.map((hour) => (
           <React.Fragment key={hour}>
-            {/* Time Column (HH:00 and HH:30 labels) */}
-            <div className="border p-2 text-center flex flex-col justify-center items-center">
-              <div className="mb-2">{`${hour}:00`}</div>
-              <div>{`${hour}:30`}</div>
+            {/* Time Labels */}
+            <div className="text-center font-mono text-gray-400">
+              <div
+                className={`mb-1 p-2 ${
+                  currentHour === hour && currentMinute < 30
+                    ? "bg-blue-600 text-white rounded-md"
+                    : ""
+                }`}
+              >
+                {`${hour}:00`}
+              </div>
+              <div
+                className={`${
+                  currentHour === hour && currentMinute >= 30
+                    ? "bg-blue-600 text-white rounded-md"
+                    : ""
+                }`}
+              >
+                {`${hour}:30`}
+              </div>
             </div>
-
+  
+            {/* Time Slots for Each Day */}
             {schedule.map((day) => (
-              <div key={`${day.date}-${hour}`} className="border p-1">
+              <div key={`${day.date}-${hour}`} className="p-1">
                 {day.slots
                   .filter((slot) =>
                     slot.time.startsWith(`${hour.toString().padStart(2, "0")}:`)
@@ -356,16 +393,14 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
                   .map((slot, idx) => (
                     <div
                       key={idx}
-                      className={`rounded p-1 text-center cursor-pointer ${
-                        slot.status === "Available"
-                          ? "bg-gray-200 hover:bg-blue-200"
-                          : "bg-red-200 opacity-50"
+                      className={`rounded-lg p-2 text-center font-semibold cursor-pointer transition ${
+                        slot.status === "Booked"
+                          ? "bg-green-600 text-white shadow-lg"
+                          : slot.status === "Available"
+                          ? "bg-gray-700 hover:bg-blue-500 text-white shadow-md"
+                          : "bg-red-700 text-gray-400 opacity-50"
                       }`}
                       title={slot.details || "No details"}
-                      onClick={() =>
-                        slot.status === "Available" &&
-                        handleSlotClick(day.date, slot.time)
-                      } 
                     >
                       {slot.type || "Unavailable"}
                     </div>
@@ -375,19 +410,19 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
           </React.Fragment>
         ))}
       </div>
+  
       {isModalOpen && selectedSlots && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-96 text-gray-200">
             <h3 className="text-lg font-bold mb-4">Book Consultation</h3>
-
-            {/* Consultation Type */}
+  
             <label className="block font-bold">Consultation Type:</label>
             <select
               value={formData.type}
               onChange={(e) =>
                 setFormData({ ...formData, type: e.target.value })
               }
-              className="w-full border p-2 rounded mb-2"
+              className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md mb-2 text-gray-200"
             >
               <option value="">Select Consultation Type</option>
               <option value="First Visit">First Visit</option>
@@ -397,8 +432,7 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
               </option>
               <option value="Prescription Request">Prescription Request</option>
             </select>
-
-            {/* Consultation Duration */}
+  
             <label className="block font-bold">Consultation Duration:</label>
             <select
               value={formData.duration}
@@ -408,15 +442,14 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
                   duration: parseInt(e.target.value, 10),
                 })
               }
-              className="w-full border p-2 rounded mb-2"
+              className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md mb-2 text-gray-200"
             >
               <option value={30}>30 minutes</option>
               <option value={60}>60 minutes</option>
               <option value={90}>90 minutes</option>
               <option value={120}>120 minutes</option>
             </select>
-
-            {/* Name */}
+  
             <label className="block font-bold">Name:</label>
             <input
               type="text"
@@ -424,23 +457,21 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full border p-2 rounded mb-2"
+              className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md mb-2 text-gray-200"
             />
-
-            {/* Gender */}
+  
             <label className="block font-bold">Gender:</label>
             <select
               value={formData.gender}
               onChange={(e) =>
                 setFormData({ ...formData, gender: e.target.value })
               }
-              className="w-full border p-2 rounded mb-2"
+              className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md mb-2 text-gray-200"
             >
               <option>Male</option>
               <option>Female</option>
             </select>
-
-            {/* Age */}
+  
             <label className="block font-bold">Age:</label>
             <input
               type="number"
@@ -448,29 +479,27 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
               onChange={(e) =>
                 setFormData({ ...formData, age: e.target.value })
               }
-              className="w-full border p-2 rounded mb-2"
+              className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md mb-2 text-gray-200"
             />
-
-            {/* Additional Notes */}
+  
             <label className="block font-bold">Additional Notes:</label>
             <textarea
               value={formData.notes}
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
-              className="w-full border p-2 rounded mb-2"
+              className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md mb-2 text-gray-200"
             />
-
-            {/* Buttons */}
+  
             <div className="flex justify-between mt-4">
               <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
+                className="bg-red-600 hover:bg-red-500 transition-colors px-4 py-2 rounded-md text-white font-semibold"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-green-500 text-white px-4 py-2 rounded"
+                className="bg-green-600 hover:bg-green-500 transition-colors px-4 py-2 rounded-md text-white font-semibold"
                 onClick={handleBookingSubmit}
               >
                 Confirm Booking
@@ -481,6 +510,10 @@ const PatientCalendar: React.FC<{ doctorId: number; patientID: number }> = ({
       )}
     </div>
   );
+  
+  
+
+  
 };
 
 export default PatientCalendar;

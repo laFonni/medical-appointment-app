@@ -25,18 +25,18 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center h-screen bg-gray-900">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm bg-white p-4 shadow-md rounded"
+        className="w-full max-w-sm bg-gray-800 p-6 shadow-lg rounded-lg"
       >
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
+        <h2 className="text-3xl font-bold text-center text-blue-400 mb-6">Login</h2>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full p-2 border mb-4 rounded"
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 mb-4"
           required
         />
         <input
@@ -44,24 +44,25 @@ const Login: React.FC = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="w-full p-2 border mb-4 rounded"
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 mb-4"
           required
         />
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded-md text-white font-semibold shadow-md"
         >
           Login
         </button>
-        <div className="text-center mt-4">
+        <div className="text-center mt-4 text-gray-400">
           <span>Don't have an account? </span>
-          <Link to="/register" className="text-blue-500 hover:underline">
+          <Link to="/register" className="text-blue-400 hover:underline">
             Register here
           </Link>
         </div>
       </form>
     </div>
   );
+  
 };
 
 export default Login;

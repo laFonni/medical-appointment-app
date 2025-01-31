@@ -119,32 +119,45 @@ const Basket: React.FC<{ patientID: number }> = ({ patientID }) => {
   }, [patientID]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md mt-6">
-      <h2 className="text-xl font-bold mb-2">My Booked Consultations</h2>
-
+    <div className="p-6 bg-gray-900 text-gray-200 rounded-xl shadow-lg mt-6">
+      <h2 className="text-2xl font-bold mb-4 text-blue-400">My Booked Consultations</h2>
+  
       {loading ? (
-        <p className="text-gray-500">Loading consultations...</p>
+        <p className="text-gray-400">Loading consultations...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : patientConsultations.length === 0 ? (
-        <p className="text-gray-500">You have no booked consultations.</p>
+        <p className="text-gray-400">You have no booked consultations.</p>
       ) : (
-        <div>
-          <ul className="border rounded-lg p-4 bg-gray-50">
+        <div className="bg-gray-800 rounded-lg shadow-md p-4">
+          <ul>
             {patientConsultations.map((consultation) => (
-              <li key={consultation.id} className="flex justify-between items-center p-2 border-b last:border-none">
+              <li
+                key={consultation.id}
+                className="flex justify-between items-center p-4 border-b border-gray-700 last:border-none bg-gray-700 rounded-lg shadow-md mb-3"
+              >
                 <div>
-                  <strong>{consultation.type}</strong>
-                  <p>{consultation.date} | {consultation.start_time} - {consultation.end_time}</p>
-                  <p className="text-sm text-gray-600">{consultation.notes || "No additional notes"}</p>
-                  <p className="text-sm font-bold">Price: ${calculatePrice(consultation)}</p>
-                  <p className={`text-sm font-bold ${consultation.status === "Paid" ? "text-green-500" : "text-red-500"}`}>
+                  <h3 className="text-lg font-bold text-blue-300">{consultation.type}</h3>
+                  <p className="text-gray-300">
+                    {consultation.date} | {consultation.start_time} - {consultation.end_time}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {consultation.notes || "No additional notes"}
+                  </p>
+                  <p className="text-sm font-bold text-yellow-400">
+                    Price: ${calculatePrice(consultation)}
+                  </p>
+                  <p
+                    className={`text-sm font-bold ${
+                      consultation.status === "Paid" ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
                     Status: {consultation.status}
                   </p>
                 </div>
                 {consultation.status === "Booked" && (
                   <button
-                    className="bg-red-500 text-white px-3 py-1 rounded"
+                    className="bg-red-600 hover:bg-red-500 transition px-4 py-2 rounded-md text-white font-semibold shadow-md"
                     onClick={() => handleCancelConsultation(consultation.id)}
                   >
                     Cancel
@@ -153,12 +166,14 @@ const Basket: React.FC<{ patientID: number }> = ({ patientID }) => {
               </li>
             ))}
           </ul>
-
+  
           {/* Show checkout button if there are unpaid consultations */}
-          {patientConsultations.some(c => c.status === "Booked") && (
+          {patientConsultations.some((c) => c.status === "Booked") && (
             <div className="flex justify-end mt-4">
               <button
-                className={`bg-green-500 text-white px-4 py-2 rounded ${isPaying ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`bg-green-600 hover:bg-green-500 transition px-5 py-2 rounded-md text-white font-semibold shadow-md ${
+                  isPaying ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 onClick={handleCheckout}
                 disabled={isPaying}
               >
@@ -170,6 +185,7 @@ const Basket: React.FC<{ patientID: number }> = ({ patientID }) => {
       )}
     </div>
   );
+  
 };
 
 export default Basket;

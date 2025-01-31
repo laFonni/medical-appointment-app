@@ -81,19 +81,21 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-900 text-gray-200">
       <Navbar userData={userData} />
-      <div className="p-4">
-        <h1 className="text-2xl font-bold">Welcome, {userData.name}</h1>
-
+      <div className="p-6 max-w-10xl mx-auto">
+        <h1 className="text-3xl font-semibold text-white">Welcome, {userData.name}</h1>
+  
         {/* Patient Dashboard */}
         {userData.role === "Patient" && (
-          <div>
-            <h2 className="text-xl font-bold mt-4 mb-2">Select Your Doctor</h2>
-
+          <div className="mt-6 p-6 bg-gray-800 bg-opacity-60 shadow-lg rounded-xl">
+            <h2 className="text-xl font-semibold text-blue-400 mb-4">
+              Select Your Doctor
+            </h2>
+  
             {/* Dropdown for selecting a doctor */}
             <select
-              className="border p-2 rounded mb-4"
+              className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 hover:border-blue-400 transition"
               value={selectedDoctorId ?? ""}
               onChange={(e) => setSelectedDoctorId(parseInt(e.target.value, 10))}
             >
@@ -103,21 +105,23 @@ const Dashboard: React.FC = () => {
                 </option>
               ))}
             </select>
-
+  
             {/* Show doctor's availability and patient tools if a doctor is selected */}
             {selectedDoctorId && (
-              <>
+              <div className="mt-6">
                 <PatientCalendar doctorId={selectedDoctorId} patientID={userData.id} />
                 <Basket patientID={userData.id} />
-              </>
+              </div>
             )}
           </div>
         )}
-
+  
         {/* Doctor Dashboard */}
         {userData.role === "Doctor" && (
-          <div>
-            <h2 className="text-xl font-bold mt-4 mb-2">My Schedule</h2>
+          <div className="mt-6 p-6 bg-gray-800 bg-opacity-60 shadow-lg rounded-xl">
+            <h2 className="text-xl font-semibold text-blue-400 mb-4">
+              My Schedule
+            </h2>
             <DoctorCalendar doctorId={userData.id} />
             <AvailabilityManager doctorId={userData.id} />
             <AbsenceManager doctorId={userData.id} />
@@ -126,6 +130,7 @@ const Dashboard: React.FC = () => {
       </div>
     </div>
   );
+  
 };
 
 export default Dashboard;
